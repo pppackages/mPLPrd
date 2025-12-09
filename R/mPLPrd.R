@@ -1,7 +1,7 @@
 ######################################################################################
 ## mPLPrd: an R package for efficient RDD inference
 ## Authors: Giuseppe Cavaliere, Sílvia Gonçalves, Morten Ø. Nielsen, & Edoardo Zanelli
-## version: 1.0 (25.11.2025)
+## version: 1.01 (9.12.2025)
 ######################################################################################
 
 
@@ -20,8 +20,12 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
   
   
 ############################# Error Checks ############################# 
+  if (!is.numeric(h) || h <= 0) {
+    stop("'h' must be a positive number")
+  }
   
-  if (!is.numeric(c) || !is.null(c)) {
+  
+  if (!is.numeric(c) & !is.null(c)) {
     stop("'c' must be numeric")
   } else if (is.null(c)) {
     c <- 0
@@ -35,15 +39,14 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
   } 
   
   
-  if (!is.null(kernel) & kernel!="uni" & kernel!="uniform" & kernel!="tri" & kernel!="triangular" & kernel!="epa" & kernel!="epanechnikov"){
+  if (!is.null(kersel) && is.character(kersel) && length(kersel) == 1 && !(kersel %in% c("uni", "uniform", "tri", "triangular", "epa", "epanechnikov"))){
     stop("Kernel function incorrectly specified.\n")
-  } else if (is.null(kernel)){
+  } else if (is.null(kersel)){
     kersel <- "tri"
   }
   
-  
-  if (!is.null(res) & res!="loo" & res!="cct-hc0" & res!="cct-hc1" & res!="cct-hc2" & res!="cct-hc3"){
-    stop("residuals incorrectly specified.\n")
+  if (!is.null(res) && is.character(res) && length(res) == 1 && !(kersel %in% c("cct-hc0","cct-hc1","cct-hc2","cct-hc3"))){
+    error("residuals incorrectly specified.\n")
   } else if (is.null(res)){
     res <- "cct-hc3"
   }
