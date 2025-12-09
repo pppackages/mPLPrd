@@ -48,7 +48,7 @@ Gamma.p.inv <- function(u,h,p,kersel) {
   for (i in 1:(p+1)) {
     X[,i] <- (u)^(i-1)
   }
-  K.X <- K(u = u, kersel = kersel)/(h*n)
+  K.X <- K(u = u, kersel = kersel)/h
   nonzero_indices <- which(K.X != 0) 
   X <- X[nonzero_indices, ]
   K.X <- K.X[nonzero_indices]
@@ -65,7 +65,7 @@ LP.est <- function(y,x,x0,h,p,v,kersel) {
   for (i in 1:(p+1)) {
     X[,i] <- (u)^(i-1)
   }
-  K.X <- K(u = u, kersel = kersel)/(h*n)
+  K.X <- K(u = u, kersel = kersel)/h
   nonzero_indices <- which(K.X != 0) 
   X <- X[nonzero_indices, ]
   K.X <- K.X[nonzero_indices]
@@ -75,8 +75,6 @@ LP.est <- function(y,x,x0,h,p,v,kersel) {
     bw.min   <- sort(abs(x-x0))[bwcheck]
     h     <- max(h, bw.min)
   }
-  
-
   
   Gamma.inv <- Gamma.p.inv(u=u, h=h, p=p, kersel=kersel) 
   
@@ -93,14 +91,13 @@ wix0 <- function(x,xi,x0,h,p,v,kersel) {
   bwcheck <- 21
   if (!is.null(bwcheck)) {
     bw.min   <- sort(abs(x-x0))[bwcheck]
-    h     <- max(h, bw.min)
+    h        <- max(h, bw.min)
   }
-  
   e1 <- numeric(p+1)
   e1[v+1] <- 1
   n <- length(x)
   u <- (x-x0)/h
-  Gamma.inv <- Gamma.p.inv(u=u, h=h, p=p, kersel=kersel) 
+  Gamma.inv <- Gamma.p.inv(u=u, h=h, p=p, kersel=kersel)
   
   W <- numeric(length(xi))
   u_all <- (xi - x0) / h
@@ -183,15 +180,3 @@ CCT.se <- function(x,x0,h,p,kersel,epshat) {
 qrXXinv = function(x, ...) {
   chol2inv(chol(crossprod(x)))
 }
-
-
-
-
-
-
-
-
-
-
-
-
