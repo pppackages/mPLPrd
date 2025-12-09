@@ -20,6 +20,7 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
   
   
 ############################# Error Checks ############################# 
+  
   if (!is.numeric(h) || h <= 0) {
     stop("'h' must be a positive number")
   }
@@ -45,9 +46,9 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
     kersel <- "tri"
   }
   
-  if (!is.null(res) && is.character(res) && length(res) == 1 && !(kersel %in% c("cct-hc0","cct-hc1","cct-hc2","cct-hc3"))){
-    error("residuals incorrectly specified.\n")
-  } else if (is.null(res)){
+  if (!is.null(res) && is.character(res) && length(res) == 1 && !(res %in% c("loo","cct-hc0","cct-hc1","cct-hc2","cct-hc3"))) {
+    stop("Residuals incorrectly specified.\n")
+  } else if (is.null(res)) {
     res <- "cct-hc3"
   }
   
@@ -183,7 +184,12 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
   
   # Residuals
   if (res == "loo") {
-    epshat <- y - ghat_vec.loo
+    if (g.loo == TRUE) {
+      epshat <- y - ghat_vec.loo
+    } else {
+      epshat <- y - ghat_vec
+    }
+    
     epshatp <- epshat[x>=c];   epshatm <- epshat[x< c]
   } else if (res == "cct-hc0" | res == "cct-hc1" | res == "cct-hc2" | res == "cct-hc3") {
     rp.pp1 <- matrix(NA, nrow = length(xp), ncol = (p + 2))
@@ -194,17 +200,19 @@ mPLPrd <- function(y, x, h, c = NULL, p = NULL, kersel = NULL, res = NULL, alpha
     }
     rp.p <- rp.pp1[,1:(p+1)]
     rm.p <- rm.pp1[,1:(p+1)]
+    Kp.X    <- (K(u = (xp-c)/h, kersel = kersel)/h)
+    Km.X    <- (K(u = (xm-c)/h, kersel = kersel)/h)
+    invGp.q <- qrXXinv((sqrt(Kp.X)*rp.pp1))
+    invGm.q <- qrXXinv((sqrt(Km.X)*rm.pp1))
+    betap.q <- invGp.q%*%crossprod(rp.pp1*Kp.X,yp)
+    betam.q <- invGm.q%*%crossprod(rm.pp1*Km.X,ym)
     
     if (res == "cct-hc0") {
       epshatp <- (yp - rp.pp1%*%betap.q)
       epshatm <- (ym - rm.pp1%*%betam.q)
+      
+      print(epshatp)
     } else {
-      Kp.X    <- (K(u = (xp-c)/h, kersel = kersel)/h)
-      Km.X    <- (K(u = (xm-c)/h, kersel = kersel)/h)
-      invGp.q <- qrXXinv((sqrt(Kp.X)*rp.pp1))
-      invGm.q <- qrXXinv((sqrt(Km.X)*rm.pp1))
-      betap.q <- invGp.q%*%crossprod(rp.pp1*Kp.X,yp)
-      betam.q <- invGm.q%*%crossprod(rm.pp1*Km.X,ym)
       Qp.vec  <- rowSums((rp.pp1 %*% invGp.q) * (rp.pp1 * Kp.X))
       Qm.vec  <- rowSums((rm.pp1 %*% invGm.q) * (rm.pp1 * Km.X))
       if (res == "cct-hc1") {
