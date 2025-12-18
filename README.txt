@@ -34,7 +34,16 @@ p            is the polynomial order used for estimating the local polynomials a
 kersel       selects the kernel function used for the local polynomial estimators.
              The possible options are "epa" (epanechnikov's), "uni" (uniform) and 
              "tri" (triangular) kernel. Default is kersel="tri".
-      
+
+res          selects the residual class used to evaluate the standard erros. 
+             Options are "loo", "cct-hc0", "cct-hc1", "cct-hc2", "cct-hc3", where the first
+             one uses as fitted value the nonparametric regression curve at the right and 
+             at the left of the cutoff (estimated at each value of x and using the polynomial 
+             order p); while the remaining four options use the heteroskedasticity-robust residuals
+             in Calonico et al. (2014, Econometrica), with weights 0, 1, 2 and 3, respectively.
+
+alpha        is the significance level used for the confidence intervals.
+
 
 
 
